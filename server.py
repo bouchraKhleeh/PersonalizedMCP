@@ -3,7 +3,6 @@ import asyncio
 from typing import Any, Dict, List
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import TextContent, Tool, CallToolRequest
 
 # Sample F1 data - in a real application, this could come from a database
 F1_DATA = {
@@ -16,7 +15,7 @@ F1_DATA = {
             "race_wins": 63,
             "pole_positions": 40,
             "fastest_laps": 33,
-            "current_points": 0  # 2025 season
+            "current_points": 0
         },
         "lewis_hamilton": {
             "name": "Lewis Hamilton",
@@ -90,9 +89,18 @@ F1_DATA = {
 # Initialize the MCP server
 server = Server("f1-data-server")
 
-# Helper functions for each tool
+# Define tools using decorators
+@server.tool()
 async def get_driver_info(driver_id: str) -> Dict[str, Any]:
-    """Get detailed information about an F1 driver."""
+    """
+    Get detailed information about an F1 driver.
+
+    Args:
+        driver_id: Driver identifier (e.g., 'max_verstappen', 'lewis_hamilton')
+
+    Returns:
+        Dictionary containing driver information or error message
+    """
     if driver_id in F1_DATA["drivers"]:
         return {
             "success": True,
@@ -104,8 +112,17 @@ async def get_driver_info(driver_id: str) -> Dict[str, Any]:
             "error": f"Driver '{driver_id}' not found. Available drivers: {', '.join(F1_DATA['drivers'].keys())}"
         }
 
+@server.tool()
 async def get_team_info(team_id: str) -> Dict[str, Any]:
-    """Get detailed information about an F1 team."""
+    """
+    Get detailed information about an F1 team.
+
+    Args:
+        team_id: Team identifier (e.g., 'red_bull', 'ferrari', 'mercedes')
+
+    Returns:
+        Dictionary containing team information or error message
+    """
     if team_id in F1_DATA["teams"]:
         return {
             "success": True,
@@ -117,8 +134,17 @@ async def get_team_info(team_id: str) -> Dict[str, Any]:
             "error": f"Team '{team_id}' not found. Available teams: {', '.join(F1_DATA['teams'].keys())}"
         }
 
+@server.tool()
 async def get_circuit_info(circuit_id: str) -> Dict[str, Any]:
-    """Get detailed information about an F1 circuit."""
+    """
+    Get detailed information about an F1 circuit.
+
+    Args:
+        circuit_id: Circuit identifier (e.g., 'monaco', 'silverstone')
+
+    Returns:
+        Dictionary containing circuit information or error message
+    """
     if circuit_id in F1_DATA["circuits"]:
         return {
             "success": True,
@@ -130,8 +156,18 @@ async def get_circuit_info(circuit_id: str) -> Dict[str, Any]:
             "error": f"Circuit '{circuit_id}' not found. Available circuits: {', '.join(F1_DATA['circuits'].keys())}"
         }
 
+@server.tool()
 async def compare_drivers(driver1_id: str, driver2_id: str) -> Dict[str, Any]:
-    """Compare statistics between two F1 drivers."""
+    """
+    Compare statistics between two F1 drivers.
+
+    Args:
+        driver1_id: First driver identifier
+        driver2_id: Second driver identifier
+
+    Returns:
+        Dictionary containing comparison data or error message
+    """
     if driver1_id not in F1_DATA["drivers"]:
         return {"success": False, "error": f"Driver '{driver1_id}' not found"}
     if driver2_id not in F1_DATA["drivers"]:
@@ -168,8 +204,14 @@ async def compare_drivers(driver1_id: str, driver2_id: str) -> Dict[str, Any]:
 
     return {"success": True, "data": comparison}
 
+@server.tool()
 async def list_all_data() -> Dict[str, Any]:
-    """List all available drivers, teams, and circuits."""
+    """
+    List all available drivers, teams, and circuits.
+
+    Returns:
+        Dictionary containing lists of all available data
+    """
     return {
         "success": True,
         "data": {
@@ -179,112 +221,12 @@ async def list_all_data() -> Dict[str, Any]:
         }
     }
 
-# Define tools
-@server.list_tools()
-async def handle_list_tools() -> list[Tool]:
-    """List available tools."""
-    return [
-        Tool(
-            name="get_driver_info",
-            description="Get detailed information about an F1 driver",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "driver_id": {
-                        "type": "string",
-                        "description": "Driver identifier (e.g., 'max_verstappen', 'lewis_hamilton')"
-                    }
-                },
-                "required": ["driver_id"]
-            }
-        ),
-        Tool(
-            name="get_team_info",
-            description="Get detailed information about an F1 team",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "team_id": {
-                        "type": "string",
-                        "description": "Team identifier (e.g., 'red_bull', 'ferrari', 'mercedes')"
-                    }
-                },
-                "required": ["team_id"]
-            }
-        ),
-        Tool(
-            name="get_circuit_info",
-            description="Get detailed information about an F1 circuit",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "circuit_id": {
-                        "type": "string",
-                        "description": "Circuit identifier (e.g., 'monaco', 'silverstone')"
-                    }
-                },
-                "required": ["circuit_id"]
-            }
-        ),
-        Tool(
-            name="compare_drivers",
-            description="Compare statistics between two F1 drivers",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "driver1_id": {
-                        "type": "string",
-                        "description": "First driver identifier"
-                    },
-                    "driver2_id": {
-                        "type": "string",
-                        "description": "Second driver identifier"
-                    }
-                },
-                "required": ["driver1_id", "driver2_id"]
-            }
-        ),
-        Tool(
-            name="list_all_data",
-            description="List all available drivers, teams, and circuits",
-            inputSchema={
-                "type": "object",
-                "properties": {},
-                "required": []
-            }
-        )
-    ]
-
-# Handle tool calls
-@server.call_tool()
-async def handle_call_tool(request: CallToolRequest) -> list[TextContent]:
-    """Handle tool calls."""
-    try:
-        if request.name == "get_driver_info":
-            result = await get_driver_info(request.arguments["driver_id"])
-        elif request.name == "get_team_info":
-            result = await get_team_info(request.arguments["team_id"])
-        elif request.name == "get_circuit_info":
-            result = await get_circuit_info(request.arguments["circuit_id"])
-        elif request.name == "compare_drivers":
-            result = await compare_drivers(
-                request.arguments["driver1_id"],
-                request.arguments["driver2_id"]
-            )
-        elif request.name == "list_all_data":
-            result = await list_all_data()
-        else:
-            result = {"success": False, "error": f"Unknown tool: {request.name}"}
-
-        return [TextContent(type="text", text=json.dumps(result, indent=2))]
-
-    except Exception as e:
-        error_result = {"success": False, "error": str(e)}
-        return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
-
 # Main function to run the server
 async def main():
-    """Run the MCP server using stdio transport."""
+    """
+    Run the MCP server using stdio transport.
+    This allows the server to communicate with Claude via standard input/output.
+    """
     async with stdio_server() as (read_stream, write_stream):
         await server.run(
             read_stream,
@@ -293,4 +235,5 @@ async def main():
         )
 
 if __name__ == "__main__":
+    # Run the server
     asyncio.run(main())
