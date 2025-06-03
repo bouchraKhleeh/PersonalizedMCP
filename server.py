@@ -2,90 +2,10 @@ from __future__ import annotations
 from typing import Any, Dict
 from mcp.server.fastmcp import FastMCP
 
+from f1_data import F1_DATA
+
 # Initialize the MCP server
 mcp = FastMCP("f1-data-server")
-
-# Sample F1 data
-F1_DATA = {
-    "drivers": {
-        "max_verstappen": {
-            "name": "Max Verstappen",
-            "team": "Red Bull Racing",
-            "nationality": "Dutch",
-            "world_championships": 4,
-            "race_wins": 63,
-            "pole_positions": 40,
-            "fastest_laps": 33,
-            "current_points": 0
-        },
-        "lewis_hamilton": {
-            "name": "Lewis Hamilton",
-            "team": "Ferrari",
-            "nationality": "British",
-            "world_championships": 7,
-            "race_wins": 105,
-            "pole_positions": 104,
-            "fastest_laps": 67,
-            "current_points": 0
-        },
-        "charles_leclerc": {
-            "name": "Charles Leclerc",
-            "team": "Ferrari",
-            "nationality": "Monegasque",
-            "world_championships": 0,
-            "race_wins": 7,
-            "pole_positions": 25,
-            "fastest_laps": 9,
-            "current_points": 0
-        }
-    },
-    "teams": {
-        "red_bull": {
-            "name": "Red Bull Racing",
-            "base": "Milton Keynes, UK",
-            "team_principal": "Christian Horner",
-            "constructors_championships": 6,
-            "engine_supplier": "Honda RBPT",
-            "founded": 2005
-        },
-        "ferrari": {
-            "name": "Scuderia Ferrari",
-            "base": "Maranello, Italy",
-            "team_principal": "Fred Vasseur",
-            "constructors_championships": 16,
-            "engine_supplier": "Ferrari",
-            "founded": 1950
-        },
-        "mercedes": {
-            "name": "Mercedes-AMG Petronas",
-            "base": "Brackley, UK",
-            "team_principal": "Toto Wolff",
-            "constructors_championships": 8,
-            "engine_supplier": "Mercedes",
-            "founded": 2010
-        }
-    },
-    "circuits": {
-        "monaco": {
-            "name": "Circuit de Monaco",
-            "location": "Monte Carlo, Monaco",
-            "length_km": 3.337,
-            "laps": 78,
-            "lap_record": "1:12.909",
-            "lap_record_holder": "Lewis Hamilton",
-            "first_gp": 1950
-        },
-        "silverstone": {
-            "name": "Silverstone Circuit",
-            "location": "Silverstone, UK",
-            "length_km": 5.891,
-            "laps": 52,
-            "lap_record": "1:27.097",
-            "lap_record_holder": "Max Verstappen",
-            "first_gp": 1950
-        }
-    }
-}
 
 @mcp.tool()
 async def get_driver_info(driver_id: str) -> str:
