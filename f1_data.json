@@ -1,5 +1,4 @@
-# Sample F1 data
-F1_DATA = {
+{
     "drivers": {
         "max_verstappen": {
             "name": "Max Verstappen",

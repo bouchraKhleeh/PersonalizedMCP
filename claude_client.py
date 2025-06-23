@@ -9,7 +9,7 @@ load_dotenv()
 
 async def main():
     if len(sys.argv) < 2:
-        print("Usage: python claude_api.py server.py")
+        print("Usage: python claude_client.py claude_server.py")
         return
 
     # Connect to MCP server
